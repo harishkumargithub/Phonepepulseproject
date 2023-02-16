@@ -5,6 +5,7 @@ import pandas as pd
 import streamlit as st
 from sqlalchemy import create_engine
 from geopy import Nominatim
+import plotly.express as px
 
 
 def aggregated_transaction_push():
@@ -59,7 +60,9 @@ def map_transaction_on_map(d):
         location = geolocator.geocode(each)
         map.append({'lat': location.latitude, 'lon': location.longitude})
     df_map = pd.DataFrame(map)
-    return df_map
+    b = pd.value_counts(d['Name'])
+    c = px.bar(x=b, y=a)
+    return df_map, c
 
 
 def map_transaction_push_to_sql(df):
@@ -110,12 +113,6 @@ elif opt == 'map' and opt2 == 'transaction' and upload:
     st.write('Push successful')
     map_transaction_push_to_sql(df)
     st.write('SQL upload successful')
-    df_map = map_transaction_on_map(df)
+    df_map, pl = map_transaction_on_map(df)
     st.map(df_map)
-
-elif opt == 'map' and opt2 == 'user' and upload:
-    pass
-elif opt == 'top' and opt2 == 'transaction':
-    os.chdir('PhonePePulseData/data/top/transaction')
-elif opt == 'map' and opt2 == 'user':
-    os.chdir('PhonePePulseData/data/top/user')
+    st.write(pl)
